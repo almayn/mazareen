@@ -17,12 +17,13 @@ function message(el, text, kind) {
   el.textContent = text;
   el.className = "status " + (kind || "");
 }
+function filteredRows() {
+  const query = search.value.trim().toLowerCase();
+  return cache[activeType].filter(row => !query || row.name.toLowerCase().includes(query) || row.phone.includes(query));
+}
 function render() {
   const farmers = activeType === "farmers";
-  const rows = cache[activeType].filter(row => {
-    const query = search.value.trim().toLowerCase();
-    return !query || row.name.toLowerCase().includes(query) || row.phone.includes(query);
-  });
+  const rows = filteredRows();
   heads.innerHTML = farmers
     ? "<tr><th>الاسم</th><th>الجوال</th><th>عدد المزارع</th><th>الموقع</th><th>تاريخ التسجيل</th></tr>"
     : "<tr><th>الاسم</th><th>الجوال</th><th>نوع الآلة</th><th>تاريخ التسجيل</th></tr>";
@@ -107,4 +108,34 @@ document.querySelector("#sign-out").addEventListener("click", async () => {
 });
 document.querySelector("#refresh-records").addEventListener("click", loadRecords);
 search.addEventListener("input", render);
+document.querySelector("#export-excel").addEventListener("click", () => {
+  const rows = filteredRows();
+  if (!rows.length) {
+    message(recordsStatus, "لا توجد سجلات لتصديرها.", "error");
+    return;
+  }
+  if (!window.XLSX) {
+    message(recordsStatus, "تعذر تحميل أداة Excel. تحقق من اتصال الإنترنت ثم أعد المحاولة.", "error");
+    return;
+  }
+  const farmers = activeType === "farmers";
+  const exportRows = rows.map(row => farmers
+    ? { "الاسم": row.name, "الجوال": row.phone, "عدد المزارع": String(row.farm_count), "الموقع": row.location, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") }
+    : { "الاسم": row.name, "الجوال": row.phone, "نوع الآلة": row.machine_type, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") });
+  const worksheet = window.XLSX.utils.json_to_sheet(exportRows);
+  worksheet["!views"] = [{ rightToLeft: true }];
+  const workbook = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(workbook, worksheet, farmers ? "المزارعون" : "أصحاب الآلات");
+  const date = new Date().toISOString().slice(0, 10);
+  window.XLSX.writeFile(workbook, (farmers ? "سجل_المزارعين_" : "سجل_الآلات_") + date + ".xlsx");
+  message(recordsStatus, "تم تجهيز ملف Excel للسجلات الظاهرة.", "success");
+});
+document.querySelector("#export-pdf").addEventListener("click", () => {
+  if (!filteredRows().length) {
+    message(recordsStatus, "لا توجد سجلات للطباعة.", "error");
+    return;
+  }
+  document.querySelector("#print-title").textContent = activeType === "farmers" ? "سجل المزارعين" : "سجل أصحاب الآلات";
+  window.print();
+});
 initialize();
