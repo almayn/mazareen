@@ -3,5 +3,5 @@
 // لا تضع هنا service_role أو secret key.
 window.MAZAREEN_CONFIG = {
   url: "https://ajzzjmotqjfwijiefouj.supabase.co",
-  anonKey: "ADD_SUPABASE_PUBLISHABLE_KEY"
+  anonKey: "sb_publishable_SyKqvvO3oO8swN8Dgg5aDg_JwZYK5vt"
 };
