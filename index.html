@@ -22,7 +22,7 @@
     <section class="intro">
       <div class="intro-copy">
         <p class="eyebrow">الزراعة · المجتمع · التنمية</p>
-        <h1>سجّل بياناتك<br><span>وساهم في بناء سجل زراعي منظم</span></h1>
+        <h1>سجّل بياناتك<br><span>في رابطة مزارعي القمح بالشبحة</span></h1>
         <p class="intro-text">اختر نوع التسجيل وأدخل البيانات المطلوبة. لن تظهر بياناتك للزوار.</p>
       </div>
       <div class="intro-art" aria-hidden="true"><span>🌾</span><span>🌱</span><span>☀️</span></div>
@@ -58,11 +58,11 @@
             </label>
             <label class="field machine-field hidden">
               <span>نوع الآلة الزراعية <b>*</b></span>
-              <input name="machine_type" type="text" maxlength="120" placeholder="مثال: حراثة، حصادة، بئر">
+              <select name="machine_type" required><option value="" selected disabled>اختر نوع الآلة</option><option value="حراثة">حراثة</option><option value="حصادة">حصادة</option><option value="درّاسة">درّاسة</option></select>
             </label>
           </div>
           <div class="form-bottom">
-            <p class="privacy-note"><span aria-hidden="true">🔒</span> معلوماتك لا تظهر للعامة، ويطّلع عليها المسؤولون المخولون فقط.</p>
+            <p class="privacy-note"><span aria-hidden="true">🔒</span> معلوماتك لا تظهر للعامة، ويطّلع عليها المسؤولون فقط.</p>
             <button class="submit-button" type="submit"><span>إرسال التسجيل</span><span aria-hidden="true">←</span></button>
           </div>
           <div id="form-status" class="status" role="status" aria-live="polite"></div>
