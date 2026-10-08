@@ -8,6 +8,7 @@
   <title>السجلات — بوابة المزارعين</title>
   <link rel="stylesheet" href="styles.css">
   <script src="config.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script type="module" src="admin.js"></script>
 </head>
 <body>
@@ -46,7 +47,10 @@
         <div class="records-toolbar">
           <label class="search-box"><span class="sr-only">بحث</span><input id="record-search" type="search" placeholder="ابحث بالاسم أو الجوال"></label>
           <button id="refresh-records" class="button-quiet" type="button">تحديث القائمة</button>
+          <button id="export-excel" class="button-quiet export-button" type="button">تصدير Excel</button>
+          <button id="export-pdf" class="button-quiet export-button" type="button">طباعة / حفظ PDF</button>
         </div>
+        <h2 id="print-title" class="print-title"></h2>
         <div class="table-wrap">
           <table><thead id="table-head"></thead><tbody id="table-body"></tbody></table>
         </div>
