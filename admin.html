@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d2d">
+  <meta name="robots" content="noindex,nofollow">
+  <title>السجلات — بوابة المزارعين</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script type="module" src="admin.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-mark">🌿</span><span><strong>بوابة المزارعين</strong><small>لوحة السجلات</small></span></a>
+    <a class="header-link" href="./">العودة للتسجيل <span aria-hidden="true">←</span></a>
+  </header>
+  <main class="page-shell admin-shell">
+    <section class="admin-heading"><div><p class="eyebrow">لوحة خاصة</p><h1>سجلات التسجيل</h1><p class="muted">تسجيل الدخول مطلوب لعرض بيانات المسجلين.</p></div></section>
+    <section class="form-card auth-card" id="login-card">
+      <div class="form-body">
+        <h2>دخول المسؤول</h2>
+        <form id="login-form">
+          <div class="field-grid">
+            <label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="username" required></label>
+            <label class="field"><span>كلمة المرور</span><input name="password" type="password" autocomplete="current-password" required></label>
+          </div>
+          <button class="submit-button" type="submit">تسجيل الدخول <span aria-hidden="true">←</span></button>
+          <div id="login-status" class="status" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+    <section class="dashboard hidden" id="records-dashboard">
+      <div class="dashboard-top">
+        <div class="stats">
+          <article class="stat-card"><span>المزارعون</span><strong id="farmer-count">0</strong></article>
+          <article class="stat-card"><span>أصحاب الآلات</span><strong id="machine-count">0</strong></article>
+        </div>
+        <button class="button-quiet" id="sign-out" type="button">تسجيل الخروج</button>
+      </div>
+      <div class="form-card records-card">
+        <div class="tabs" role="tablist" aria-label="نوع السجلات">
+          <button class="tab active" type="button" data-record-tab="farmers">المزارعون</button>
+          <button class="tab" type="button" data-record-tab="machines">أصحاب الآلات</button>
+        </div>
+        <div class="records-toolbar">
+          <label class="search-box"><span class="sr-only">بحث</span><input id="record-search" type="search" placeholder="ابحث بالاسم أو الجوال"></label>
+          <button id="refresh-records" class="button-quiet" type="button">تحديث القائمة</button>
+        </div>
+        <div class="table-wrap">
+          <table><thead id="table-head"></thead><tbody id="table-body"></tbody></table>
+        </div>
+        <div id="records-status" class="status" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+    <footer class="site-footer"><a href="./">بوابة المزارعين</a><span>السجلات خاصة بالمسؤولين</span></footer>
+  </main>
+</body>
+</html>
