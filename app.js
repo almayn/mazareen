@@ -37,6 +37,22 @@ function switchKind(kind) {
 }
 farmerTab.addEventListener("click", () => switchKind("farmer"));
 machineTab.addEventListener("click", () => switchKind("machine"));
+function toEnglishDigits(value) {
+  return value.replace(/[٠-٩۰-۹]/g, digit => {
+    const code = digit.charCodeAt(0);
+    return String(code - (code >= 0x06f0 ? 0x06f0 : 0x0660));
+  });
+}
+form.addEventListener("input", event => {
+  const input = event.target;
+  if (!input || !["phone", "farm_count"].includes(input.name)) return;
+  const cursor = input.selectionStart;
+  const converted = toEnglishDigits(input.value);
+  if (converted !== input.value) {
+    input.value = converted;
+    if (cursor !== null) input.setSelectionRange(cursor, cursor);
+  }
+});
 form.addEventListener("submit", async event => {
   event.preventDefault();
   showStatus("", "");
@@ -44,6 +60,10 @@ form.addEventListener("submit", async event => {
     showStatus("لم يكتمل ربط قاعدة البيانات بعد. أضف مفتاح Supabase العام في ملف config.js.", "error");
     return;
   }
+  const phoneInput = form.querySelector('[name="phone"]');
+  const farmCountInput = form.querySelector('[name="farm_count"]');
+  phoneInput.value = toEnglishDigits(phoneInput.value);
+  farmCountInput.value = toEnglishDigits(farmCountInput.value);
   const data = new FormData(form);
   const name = String(data.get("name") || "").trim();
   const phone = String(data.get("phone") || "").replace(/[\s()-]/g, "");
