@@ -44,7 +44,7 @@ function showSuccess(kind, record, registrationNumber) {
   tabs.classList.add("hidden");
   formBody.classList.add("hidden");
   panel.classList.remove("hidden");
-  document.querySelector("#success-number").textContent = toEnglishDigits(registrationNumber);
+  document.querySelector("#success-number").textContent = registrationNumber ? toEnglishDigits(registrationNumber) : "سيظهر بعد تحديث قاعدة البيانات";
   const details = kind === "farmer"
     ? [["الاسم", record.name], ["رقم الجوال", record.phone], ["عدد المزارع", String(record.farm_count)], ["الموقع", record.location]]
     : [["الاسم", record.name], ["رقم الجوال", record.phone], ["نوع الآلة", record.machine_type]];
@@ -125,13 +125,20 @@ form.addEventListener("submit", async event => {
   const rpcArgs = currentKind === "farmer"
     ? { p_name: record.name, p_phone: record.phone, p_farm_count: record.farm_count, p_location: record.location }
     : { p_name: record.name, p_phone: record.phone, p_machine_type: record.machine_type };
-  const result = await supabase.rpc(rpcName, rpcArgs);
+  let result = await supabase.rpc(rpcName, rpcArgs);
+  let registrationNumber = result.data;
+  if (result.error?.code === "PGRST202") {
+    const table = currentKind === "farmer" ? "farmer_registrations" : "machine_registrations";
+    const legacySave = await supabase.from(table).insert(record);
+    result = { error: legacySave.error };
+    registrationNumber = "";
+  }
   button.disabled = false;
   button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
-  if (result.error || !result.data) {
-    showStatus("تعذر حفظ التسجيل الآن. إذا كانت هذه أول مرة بعد التحديث، شغّل ملف ترحيل قاعدة البيانات في Supabase ثم أعد المحاولة.", "error");
+  if (result.error) {
+    showStatus("تعذر حفظ التسجيل الآن. حاول مرة أخرى بعد قليل.", "error");
     console.error(result.error);
     return;
   }
-  showSuccess(currentKind, record, String(result.data));
+  showSuccess(currentKind, record, registrationNumber ? String(registrationNumber) : "");
 });
