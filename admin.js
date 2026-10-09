@@ -19,23 +19,23 @@ function message(el, text, kind) {
 }
 function filteredRows() {
   const query = search.value.trim().toLowerCase();
-  return cache[activeType].filter(row => !query || row.name.toLowerCase().includes(query) || row.phone.includes(query));
+  return cache[activeType].filter(row => !query || row.name.toLowerCase().includes(query) || row.phone.includes(query) || (row.registration_number || "").includes(query));
 }
 function render() {
   const farmers = activeType === "farmers";
   const rows = filteredRows();
   heads.innerHTML = farmers
-    ? "<tr><th>الاسم</th><th>الجوال</th><th>عدد المزارع</th><th>الموقع</th><th>تاريخ التسجيل</th></tr>"
-    : "<tr><th>الاسم</th><th>الجوال</th><th>نوع الآلة</th><th>تاريخ التسجيل</th></tr>";
+    ? "<tr><th>رقم التسجيل</th><th>الاسم</th><th>الجوال</th><th>عدد المزارع</th><th>الموقع</th><th>تاريخ التسجيل</th></tr>"
+    : "<tr><th>رقم التسجيل</th><th>الاسم</th><th>الجوال</th><th>نوع الآلة</th><th>تاريخ التسجيل</th></tr>";
   if (!rows.length) {
-    body.innerHTML = '<tr><td class="empty-cell" colspan="' + (farmers ? "5" : "4") + '">لا توجد سجلات مطابقة.</td></tr>';
+    body.innerHTML = '<tr><td class="empty-cell" colspan="' + (farmers ? "6" : "5") + '">لا توجد سجلات مطابقة.</td></tr>';
     return;
   }
   body.innerHTML = rows.map(row => {
     const date = new Date(row.created_at).toLocaleDateString("ar-SA", { year: "numeric", month: "short", day: "numeric" });
     const cells = farmers
-      ? [row.name, row.phone, row.farm_count, row.location, date]
-      : [row.name, row.phone, row.machine_type, date];
+      ? [row.registration_number, row.name, row.phone, row.farm_count, row.location, date]
+      : [row.registration_number, row.name, row.phone, row.machine_type, date];
     return "<tr>" + cells.map(value => "<td>" + escapeHtml(String(value)) + "</td>").join("") + "</tr>";
   }).join("");
 }
@@ -45,8 +45,8 @@ function escapeHtml(value) {
 async function loadRecords() {
   message(recordsStatus, "جارٍ تحميل السجلات…", "");
   const [farmers, machines] = await Promise.all([
-    supabase.from("farmer_registrations").select("id,name,phone,farm_count,location,created_at").order("created_at", { ascending: false }),
-    supabase.from("machine_registrations").select("id,name,phone,machine_type,created_at").order("created_at", { ascending: false })
+    supabase.from("farmer_registrations").select("id,registration_number,name,phone,farm_count,location,created_at").order("created_at", { ascending: false }),
+    supabase.from("machine_registrations").select("id,registration_number,name,phone,machine_type,created_at").order("created_at", { ascending: false })
   ]);
   if (farmers.error || machines.error) {
     message(recordsStatus, "تعذر تحميل السجلات. تأكد من إعداد صلاحيات المسؤول في قاعدة البيانات.", "error");
@@ -120,8 +120,8 @@ document.querySelector("#export-excel").addEventListener("click", () => {
   }
   const farmers = activeType === "farmers";
   const exportRows = rows.map(row => farmers
-    ? { "الاسم": row.name, "الجوال": row.phone, "عدد المزارع": String(row.farm_count), "الموقع": row.location, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") }
-    : { "الاسم": row.name, "الجوال": row.phone, "نوع الآلة": row.machine_type, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") });
+    ? { "رقم التسجيل": row.registration_number, "الاسم": row.name, "الجوال": row.phone, "عدد المزارع": String(row.farm_count), "الموقع": row.location, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") }
+     : { "رقم التسجيل": row.registration_number, "الاسم": row.name, "الجوال": row.phone, "نوع الآلة": row.machine_type, "تاريخ التسجيل": new Date(row.created_at).toLocaleDateString("ar-SA") });
   const worksheet = window.XLSX.utils.json_to_sheet(exportRows);
   worksheet["!views"] = [{ rightToLeft: true }];
   const workbook = window.XLSX.utils.book_new();
