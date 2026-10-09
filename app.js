@@ -33,8 +33,38 @@ function switchKind(kind) {
   title.textContent = farmer ? "أهلاً بك في سجل المزارعين" : "سجّل بيانات الآلة الزراعية";
   kicker.textContent = farmer ? "بيانات المزارع" : "بيانات صاحب الآلة";
   form.reset();
+  resetMachineList();
   showStatus("", "");
 }
+function updateMachineControls() {
+  const rows = Array.from(document.querySelectorAll("#machine-list .machine-row"));
+  rows.forEach(row => row.querySelector(".remove-machine").classList.toggle("hidden", rows.length === 1));
+}
+function resetMachineList() {
+  const rows = document.querySelectorAll("#machine-list .machine-row");
+  rows.forEach((row, index) => { if (index > 0) row.remove(); });
+  const firstSelect = document.querySelector('#machine-list select[name="machine_type"]');
+  if (firstSelect) firstSelect.value = "";
+  updateMachineControls();
+}
+document.querySelector("#add-machine").addEventListener("click", () => {
+  const firstRow = document.querySelector("#machine-list .machine-row");
+  const row = document.createElement("div");
+  row.className = "machine-row";
+  const select = firstRow.querySelector("select").cloneNode(true);
+  select.value = "";
+  select.removeAttribute("id");
+  select.setAttribute("aria-label", "نوع آلة زراعية إضافية");
+  const remove = document.createElement("button");
+  remove.className = "button-quiet remove-machine";
+  remove.type = "button";
+  remove.textContent = "حذف";
+  remove.setAttribute("aria-label", "حذف الآلة");
+  remove.addEventListener("click", () => { row.remove(); updateMachineControls(); });
+  row.append(select, remove);
+  document.querySelector("#machine-list").append(row);
+  updateMachineControls();
+});
 farmerTab.addEventListener("click", () => switchKind("farmer"));
 machineTab.addEventListener("click", () => switchKind("machine"));
 function showSuccess(kind, record, registrationNumber) {
@@ -112,14 +142,15 @@ form.addEventListener("submit", async event => {
     }
     record = { name, phone, farm_count: farmCount, location };
   } else {
-    const machineType = String(data.get("machine_type") || "").trim();
-    if (!machineType) {
-      showStatus("أدخل نوع الآلة الزراعية.", "error");
+    const machineTypes = Array.from(form.querySelectorAll('[name="machine_type"]'))
+      .map(select => String(select.value || "").trim());
+    if (!machineTypes.length || machineTypes.some(type => !type)) {
+      showStatus("اختر نوع كل آلة أضفتها، أو احذف الحقل غير المستخدم.", "error");
       button.disabled = false;
       button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
       return;
     }
-    record = { name, phone, machine_type: machineType };
+    record = { name, phone, machine_type: machineTypes.join("، ") };
   }
   const rpcName = currentKind === "farmer" ? "register_farmer" : "register_machine";
   const rpcArgs = currentKind === "farmer"
@@ -136,6 +167,12 @@ form.addEventListener("submit", async event => {
   button.disabled = false;
   button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
   if (result.error) {
+    const multipleMachines = currentKind === "machine" && (record.machine_type.includes("، ") || record.machine_type.includes("بذّارة"));
+    if (multipleMachines && result.error.code === "22023") {
+      showStatus("لتفعيل الأنواع المتعددة والبذّارة، شغّل ملف تحديث أنواع الآلات في قاعدة البيانات.", "error");
+      console.error(result.error);
+      return;
+    }
     showStatus("تعذر حفظ التسجيل الآن. حاول مرة أخرى بعد قليل.", "error");
     console.error(result.error);
     return;
