@@ -49,10 +49,10 @@ with numbered as (
   select registration_year, max(serial)::bigint as last_serial
   from numbered group by registration_year
 )
-insert into public.registration_counters(registration_year, last_serial)
+insert into public.registration_counters as counters(registration_year, last_serial)
 select registration_year, last_serial from yearly_counts
 on conflict (registration_year) do update
-set last_serial = greatest(public.registration_counters.last_serial, excluded.last_serial);
+set last_serial = greatest(counters.last_serial, excluded.last_serial);
 
 create unique index if not exists farmer_registration_number_unique on public.farmer_registrations(registration_number);
 create unique index if not exists machine_registration_number_unique on public.machine_registrations(registration_number);
@@ -65,9 +65,9 @@ as $$
 declare yr integer; serial bigint;
 begin
   yr := extract(year from coalesce(new.created_at, now()))::integer;
-  insert into public.registration_counters(registration_year, last_serial) values (yr, 1)
+  insert into public.registration_counters as counters(registration_year, last_serial) values (yr, 1)
   on conflict (registration_year) do update
-    set last_serial = public.registration_counters.last_serial + 1
+    set last_serial = counters.last_serial + 1
   returning last_serial into serial;
   new.registration_number := right(yr::text, 2) || serial::text || (serial + 9)::text;
   return new;
