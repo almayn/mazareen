@@ -34,8 +34,8 @@ function render() {
   body.innerHTML = rows.map(row => {
     const date = new Date(row.created_at).toLocaleDateString("ar-SA", { year: "numeric", month: "short", day: "numeric" });
     const cells = farmers
-      ? [row.registration_number, row.name, row.phone, row.farm_count, row.location, date]
-      : [row.registration_number, row.name, row.phone, row.machine_type, date];
+      ? [row.registration_number || "—", row.name, row.phone, row.farm_count, row.location, date]
+      : [row.registration_number || "—", row.name, row.phone, row.machine_type, date];
     return "<tr>" + cells.map(value => "<td>" + escapeHtml(String(value)) + "</td>").join("") + "</tr>";
   }).join("");
 }
