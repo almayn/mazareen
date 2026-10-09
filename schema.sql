@@ -6,8 +6,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.farmer_registrations (
   id uuid primary key default gen_random_uuid(),
-  registration_number text unique,
-  registration_number text unique,
+  registration_number text,
   name text not null check (char_length(trim(name)) between 3 and 120),
   phone text not null check (char_length(phone) between 8 and 20),
   farm_count integer not null check (farm_count between 1 and 999),
@@ -17,6 +16,7 @@ create table if not exists public.farmer_registrations (
 
 create table if not exists public.machine_registrations (
   id uuid primary key default gen_random_uuid(),
+  registration_number text,
   name text not null check (char_length(trim(name)) between 3 and 120),
   phone text not null check (char_length(phone) between 8 and 20),
   machine_type text not null check (char_length(trim(machine_type)) between 1 and 120),
