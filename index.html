@@ -56,10 +56,17 @@
               <span>الموقع <b>*</b></span>
               <input name="location" type="text" maxlength="180" placeholder="القرية أو المنطقة">
             </label>
-            <label class="field machine-field hidden">
-              <span>نوع الآلة الزراعية <b>*</b></span>
-              <select name="machine_type" required><option value="" selected disabled>اختر نوع الآلة</option><option value="حراثة">حراثة</option><option value="حصادة">حصادة</option><option value="درّاسة">درّاسة</option></select>
-            </label>
+            <div class="field machine-field hidden">
+              <span>أنواع الآلات الزراعية <b>*</b></span>
+              <div id="machine-list" class="machine-list">
+                <div class="machine-row">
+                  <select name="machine_type" required aria-label="نوع الآلة الزراعية"><option value="" selected disabled>اختر نوع الآلة</option><option value="حراثة">حراثة</option><option value="حصادة">حصادة</option><option value="درّاسة">درّاسة</option><option value="بذّارة">بذّارة</option></select>
+                  <button class="button-quiet remove-machine hidden" type="button" aria-label="حذف الآلة">حذف</button>
+                </div>
+              </div>
+              <button id="add-machine" class="button-quiet add-machine" type="button">+ إضافة آلة أخرى</button>
+              <small>أضف نوعًا لكل آلة زراعية تملكها.</small>
+            </div>
           </div>
           <div class="form-bottom">
             <p class="privacy-note"><span aria-hidden="true">🔒</span> معلوماتك لا تظهر للعامة، ويطّلع عليها المسؤولون فقط.</p>
