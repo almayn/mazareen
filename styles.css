@@ -17,3 +17,14 @@
   th{background:#edf2ed!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tr{break-inside:avoid;page-break-inside:avoid}
 }
+.success-panel{padding:34px 32px 36px;text-align:center}
+.success-mark{width:58px;height:58px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;background:#e7f3e9;color:#267243;font-size:32px;font-weight:700;box-shadow:0 0 0 7px #e7f3e955}
+.success-eyebrow{color:#64836a;margin-top:12px}
+.success-panel h2{margin:0;color:var(--green);font-size:24px}
+.success-number-label{margin:19px 0 3px;color:var(--muted);font-size:13px}
+.registration-number{display:inline-block;padding:7px 18px;border-radius:10px;background:var(--green-soft);color:var(--green);font-family:Arial,Tahoma,sans-serif;font-size:24px;letter-spacing:.06em;font-variant-numeric:lining-nums}
+.success-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;text-align:right;max-width:620px;margin:24px auto}
+.success-details dt{color:var(--muted);font-size:12px}
+.success-details dd{margin:0;color:var(--ink);font-weight:700;overflow-wrap:anywhere}
+.new-registration{margin:10px auto 0;justify-content:center}
+@media(max-width:650px){.success-panel{padding:27px 18px}.success-panel h2{font-size:21px}.success-details{gap:12px 8px}.success-details dt{font-size:11px}.success-details dd{font-size:13px}}
