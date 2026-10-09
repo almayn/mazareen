@@ -44,10 +44,17 @@ function escapeHtml(value) {
 }
 async function loadRecords() {
   message(recordsStatus, "جارٍ تحميل السجلات…", "");
-  const [farmers, machines] = await Promise.all([
+  let [farmers, machines] = await Promise.all([
     supabase.from("farmer_registrations").select("id,registration_number,name,phone,farm_count,location,created_at").order("created_at", { ascending: false }),
     supabase.from("machine_registrations").select("id,registration_number,name,phone,machine_type,created_at").order("created_at", { ascending: false })
   ]);
+  const missingRegistrationColumn = [farmers.error, machines.error].some(error => error && ["42703", "PGRST204"].includes(error.code));
+  if (missingRegistrationColumn) {
+    [farmers, machines] = await Promise.all([
+      supabase.from("farmer_registrations").select("id,name,phone,farm_count,location,created_at").order("created_at", { ascending: false }),
+      supabase.from("machine_registrations").select("id,name,phone,machine_type,created_at").order("created_at", { ascending: false })
+    ]);
+  }
   if (farmers.error || machines.error) {
     message(recordsStatus, "تعذر تحميل السجلات. تأكد من إعداد صلاحيات المسؤول في قاعدة البيانات.", "error");
     console.error(farmers.error || machines.error);
