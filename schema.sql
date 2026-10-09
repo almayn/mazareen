@@ -125,7 +125,7 @@ with combined as (
   from combined
 )
 update public.farmer_registrations f
-set registration_number = right(r.registration_year::text, 2) || r.serial::text || (r.serial + 9)::text
+set registration_number = right(r.registration_year::text, 2) || case when r.serial < 10 then '0' || r.serial::text else r.serial::text end
 from ranked r
 where r.source = 'farmer' and r.id = f.id and f.registration_number is null;
 
@@ -139,7 +139,7 @@ with combined as (
   from combined
 )
 update public.machine_registrations m
-set registration_number = right(r.registration_year::text, 2) || r.serial::text || (r.serial + 9)::text
+set registration_number = right(r.registration_year::text, 2) || case when r.serial < 10 then '0' || r.serial::text else r.serial::text end
 from ranked r
 where r.source = 'machine' and r.id = m.id and m.registration_number is null;
 
@@ -175,7 +175,7 @@ begin
   on conflict (registration_year) do update
     set last_serial = counters.last_serial + 1
   returning last_serial into serial;
-  new.registration_number := right(yr::text, 2) || serial::text || (serial + 9)::text;
+  new.registration_number := right(yr::text, 2) || case when serial < 10 then '0' || serial::text else serial::text end;
   return new;
 end;
 $$;
