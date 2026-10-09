@@ -28,3 +28,5 @@
 .success-details dd{margin:0;color:var(--ink);font-weight:700;overflow-wrap:anywhere}
 .new-registration{margin:10px auto 0;justify-content:center}
 @media(max-width:650px){.success-panel{padding:27px 18px}.success-panel h2{font-size:21px}.success-details{gap:12px 8px}.success-details dt{font-size:11px}.success-details dd{font-size:13px}}
+
+.machine-list{display:grid;gap:8px}.machine-row{display:flex;align-items:center;gap:8px}.machine-row select{flex:1;min-width:0}.remove-machine{flex:0 0 auto;padding-inline:11px}.add-machine{align-self:flex-start;margin-top:7px}
