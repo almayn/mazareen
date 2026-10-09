@@ -213,7 +213,11 @@ declare assigned_number text;
 begin
   if char_length(trim(coalesce(p_name, ''))) not between 3 and 120
      or char_length(trim(coalesce(p_phone, ''))) not between 8 and 20
-     or trim(coalesce(p_machine_type, '')) not in ('حراثة', 'حصادة', 'درّاسة') then
+     or char_length(trim(coalesce(p_machine_type, ''))) not between 1 and 120
+     or exists (
+       select 1 from pg_catalog.regexp_split_to_table(trim(coalesce(p_machine_type, '')), '[,،]') as item(value)
+       where trim(item.value) not in ('حراثة', 'حصادة', 'درّاسة', 'بذّارة')
+     ) then
     raise exception 'بيانات التسجيل غير مكتملة أو غير صحيحة' using errcode = '22023';
   end if;
   insert into public.machine_registrations(name, phone, machine_type)
