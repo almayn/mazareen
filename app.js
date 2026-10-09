@@ -37,6 +37,32 @@ function switchKind(kind) {
 }
 farmerTab.addEventListener("click", () => switchKind("farmer"));
 machineTab.addEventListener("click", () => switchKind("machine"));
+function showSuccess(kind, record, registrationNumber) {
+  const tabs = document.querySelector("#registration-card .tabs");
+  const formBody = document.querySelector("#registration-card .form-body");
+  const panel = document.querySelector("#success-panel");
+  tabs.classList.add("hidden");
+  formBody.classList.add("hidden");
+  panel.classList.remove("hidden");
+  document.querySelector("#success-number").textContent = toEnglishDigits(registrationNumber);
+  const details = kind === "farmer"
+    ? [["الاسم", record.name], ["رقم الجوال", record.phone], ["عدد المزارع", String(record.farm_count)], ["الموقع", record.location]]
+    : [["الاسم", record.name], ["رقم الجوال", record.phone], ["نوع الآلة", record.machine_type]];
+  const list = document.querySelector("#success-details");
+  list.replaceChildren(...details.flatMap(([label, value]) => {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value;
+    return [term, description];
+  }));
+}
+document.querySelector("#new-registration").addEventListener("click", () => {
+  document.querySelector("#registration-card .tabs").classList.remove("hidden");
+  document.querySelector("#registration-card .form-body").classList.remove("hidden");
+  document.querySelector("#success-panel").classList.add("hidden");
+  switchKind("farmer");
+});
 function toEnglishDigits(value) {
   return value.replace(/[٠-٩۰-۹]/g, digit => {
     const code = digit.charCodeAt(0);
@@ -74,7 +100,7 @@ form.addEventListener("submit", async event => {
   const button = form.querySelector('[type="submit"]');
   button.disabled = true;
   button.innerHTML = '<span>جارٍ إرسال التسجيل…</span>';
-  let table, record;
+  let record;
   if (currentKind === "farmer") {
     const farmCount = Number(data.get("farm_count"));
     const location = String(data.get("location") || "").trim();
@@ -84,7 +110,6 @@ form.addEventListener("submit", async event => {
       button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
       return;
     }
-    table = "farmer_registrations";
     record = { name, phone, farm_count: farmCount, location };
   } else {
     const machineType = String(data.get("machine_type") || "").trim();
@@ -94,17 +119,19 @@ form.addEventListener("submit", async event => {
       button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
       return;
     }
-    table = "machine_registrations";
     record = { name, phone, machine_type: machineType };
   }
-  const result = await supabase.from(table).insert(record);
+  const rpcName = currentKind === "farmer" ? "register_farmer" : "register_machine";
+  const rpcArgs = currentKind === "farmer"
+    ? { p_name: record.name, p_phone: record.phone, p_farm_count: record.farm_count, p_location: record.location }
+    : { p_name: record.name, p_phone: record.phone, p_machine_type: record.machine_type };
+  const result = await supabase.rpc(rpcName, rpcArgs);
   button.disabled = false;
   button.innerHTML = '<span>إرسال التسجيل</span><span aria-hidden="true">←</span>';
-  if (result.error) {
-    showStatus("تعذر حفظ التسجيل الآن. حاول مرة أخرى بعد قليل.", "error");
+  if (result.error || !result.data) {
+    showStatus("تعذر حفظ التسجيل الآن. إذا كانت هذه أول مرة بعد التحديث، شغّل ملف ترحيل قاعدة البيانات في Supabase ثم أعد المحاولة.", "error");
     console.error(result.error);
     return;
   }
-  form.reset();
-  showStatus("تم استلام تسجيلك بنجاح، شكرًا لك.", "success");
+  showSuccess(currentKind, record, String(result.data));
 });
