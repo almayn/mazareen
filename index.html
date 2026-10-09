@@ -27,7 +27,7 @@
       </div>
       <div class="intro-art" aria-hidden="true"><span>🌾</span><span>🌱</span><span>☀️</span></div>
     </section>
-    <section class="form-card">
+    <section class="form-card" id="registration-card">
       <div class="tabs" role="tablist" aria-label="نوع التسجيل">
         <button class="tab active" id="farmer-tab" type="button" role="tab" aria-selected="true" aria-controls="farmer-panel">تسجيل مزارع</button>
         <button class="tab" id="machine-tab" type="button" role="tab" aria-selected="false" aria-controls="machine-panel">تسجيل صاحب آلة</button>
@@ -67,6 +67,15 @@
           </div>
           <div id="form-status" class="status" role="status" aria-live="polite"></div>
         </form>
+      </div>
+      <div id="success-panel" class="success-panel hidden" aria-live="polite">
+        <div class="success-mark" aria-hidden="true">✓</div>
+        <p class="eyebrow success-eyebrow">اكتمل التسجيل</p>
+        <h2>تم تسجيلك بنجاح</h2>
+        <p class="success-number-label">رقم التسجيل</p>
+        <strong id="success-number" class="registration-number" dir="ltr"></strong>
+        <dl id="success-details" class="success-details"></dl>
+        <button id="new-registration" class="submit-button new-registration" type="button">تسجيل بيانات أخرى</button>
       </div>
     </section>
     <footer class="site-footer"><span>سجل زراعي يخدم التنمية المحلية</span><span>© <span id="year"></span> بوابة المزارعين</span></footer>
