@@ -52,6 +52,23 @@ socialIcon('x',755,sy);ctx.fillText('naifjuhni',793,sy);ctx.restore()}
 fields.forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(id==='titleSize')document.querySelector('#titleSizeValue').value=document.querySelector('#titleSize').value;draw()}));
 function loadImageFile(file){if(!file||!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=()=>{hero=new Image();hero.onload=draw;hero.src=reader.result};reader.readAsDataURL(file)}document.querySelector('#image').addEventListener('change',e=>loadImageFile(e.target.files?.[0]));
 document.querySelector('#pasteImage').addEventListener('click',async()=>{try{const items=await navigator.clipboard.read();for(const item of items){const type=item.types.find(t=>t.startsWith('image/'));if(type){const blob=await item.getType(type);loadImageFile(new File([blob],'clipboard.png',{type}));return}}alert('لا توجد صورة في الحافظة.')}catch{alert('تعذر قراءة الحافظة. جرّب Ctrl+V أو ⌘V.')}});document.addEventListener('paste',e=>{const item=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));if(item){e.preventDefault();loadImageFile(item.getAsFile())}});document.addEventListener('dragover',e=>{if([...e.dataTransfer?.types||[]].includes('Files'))e.preventDefault()});document.addEventListener('drop',e=>{if([...e.dataTransfer?.types||[]].includes('Files')){e.preventDefault();loadImageFile([...e.dataTransfer.files].find(f=>f.type.startsWith('image/')))}});
-document.querySelector('#save').addEventListener('click',async()=>{await document.fonts.ready;draw();const link=document.createElement('a'),base=document.querySelector('#title').value.trim().split(/\s+/).slice(0,3).join(' ').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'')||'almas-news';link.download=base+'.png';link.href=canvas.toDataURL('image/png');link.click()});document.querySelector('#reset').addEventListener('click',()=>{for(const[id,value]of Object.entries(defaults))document.getElementById(id).value=value;document.querySelector('#image').value='';hero=null;document.querySelector('#titleSizeValue').value=defaults.titleSize;draw()});draw();document.fonts.ready.then(draw);
+document.querySelector('#save').addEventListener('click',async()=>{
+const isAppleMobile=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const previewWindow=isAppleMobile?window.open('about:blank','_blank'):null;
+await document.fonts.ready;draw();
+const base=document.querySelector('#title').value.trim().split(/\s+/).slice(0,3).join(' ').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'')||'almas-news';
+const filename=base+'.png';
+const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+if(!blob){if(previewWindow)previewWindow.close();alert('تعذر إنشاء الصورة. حاول مرة أخرى.');return}
+if(isAppleMobile&&navigator.share&&navigator.canShare){
+try{const file=new File([blob],filename,{type:'image/png'});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:filename});if(previewWindow)previewWindow.close();return}}catch(error){if(error.name==='AbortError'){if(previewWindow)previewWindow.close();return}}
+}
+const url=URL.createObjectURL(blob);
+if(isAppleMobile&&previewWindow){
+const doc=previewWindow.document;doc.open();doc.write('<!doctype html><html lang="ar" dir="rtl"><meta name="viewport" content="width=device-width,initial-scale=1"><title>حفظ الصورة</title><body style="margin:0;padding:16px;background:#101b2e;color:white;text-align:center;font:16px Arial"><p>اضغط مطولًا على الصورة ثم اختر «حفظ في الصور»</p><img src="'+url+'" style="display:block;max-width:100%;height:auto;margin:auto"></body></html>');doc.close();
+setTimeout(()=>URL.revokeObjectURL(url),600000);return
+}
+const link=document.createElement('a');link.href=url;link.download=filename;link.style.display='none';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)
+});document.querySelector('#reset').addEventListener('click',()=>{for(const[id,value]of Object.entries(defaults))document.getElementById(id).value=value;document.querySelector('#image').value='';hero=null;document.querySelector('#titleSizeValue').value=defaults.titleSize;draw()});draw();document.fonts.ready.then(draw);
 </script>
 </body></html>
